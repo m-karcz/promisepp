@@ -18,25 +18,25 @@ struct IsOneOf;
 template<typename T, typename U, typename... Others>
 struct IsOneOf<T, U, Others...>
 {
-	constexpr static bool value = IsOneOf<T, Others...>::value;
+    constexpr static bool value = IsOneOf<T, Others...>::value;
 };
 
 template<typename T, typename... Others>
 struct IsOneOf<T, T, Others...>
 {
-	constexpr static bool value = true;
+    constexpr static bool value = true;
 };
 
 template<typename T, typename U>
 struct IsOneOf<T,U>
 {
-	constexpr static bool value = false;
+    constexpr static bool value = false;
 };
 
 template<typename T>
 struct IsOneOf<T,T>
 {
-	constexpr static bool value = true;
+    constexpr static bool value = true;
 };
 
 template<typename...Args>
@@ -45,7 +45,7 @@ struct IndexOf;
 template<typename T, typename... Others>
 struct IndexOf<T, T, Others...>
 {
-	constexpr static std::size_t value = 0;
+    constexpr static std::size_t value = 0;
 };
 
 template<typename T, typename U>
@@ -54,13 +54,13 @@ struct IndexOf<T,U>;
 template<typename T>
 struct IndexOf<T,T>
 {
-	constexpr static std::size_t value = 0;
+    constexpr static std::size_t value = 0;
 };
 
 template<typename T, typename U, typename... Others>
 struct IndexOf<T, U, Others...>
 {
-	constexpr static std::size_t value = 1 + IndexOf<T, Others...>::value;
+    constexpr static std::size_t value = 1 + IndexOf<T, Others...>::value;
 };
 
 
@@ -71,13 +71,13 @@ typedef void (*voidFunc1const1)(void*, const void*);
 template<typename...Types>
 struct ClassFuncs
 {
-	template<typename T>
-	struct Helper
-	{
-		static void destructor(void* ptr)
-		{
-			reinterpret_cast<T*>(ptr)->~T();	
-		}
+    template<typename T>
+    struct Helper
+    {
+        static void destructor(void* ptr)
+        {
+            reinterpret_cast<T*>(ptr)->~T();	
+        }
         static void copyAssignment(void* to, const void* from)
         {
             *reinterpret_cast<T*>(to) = *reinterpret_cast<const T*>(from);
@@ -94,9 +94,9 @@ struct ClassFuncs
         {
             new (to) T (std::move(*reinterpret_cast<T*>(from)));
         }
-	};
+    };
       
-	constexpr static voidFunc destructors[] = {Helper<Types>::destructor...};
+    constexpr static voidFunc destructors[] = {Helper<Types>::destructor...};
     constexpr static voidFunc1const1 copyAssignments[] = {Helper<Types>::copyAssignment...};
     constexpr static voidFunc1const1 copiesInPlace[] = {Helper<Types>::copyInPlace...};
     constexpr static voidFunc2 moveAssignments[] = {Helper<Types>::moveAssignment...};
@@ -122,24 +122,26 @@ template<typename...Types>
 struct Variant
 {
 private:
-	constexpr static std::size_t npos = -1;
+    constexpr static std::size_t npos = -1;
 public:
-	Variant()
-	{}
-	template<typename T>
-	Variant(const T& value)
-	{
-		static_assert(IsOneOf<typename std::decay<T>::type, Types...>::value, "this type does not exists in variant");
-		new (&data) T (value);
-		index = IndexOf<T, Types...>::value;
-	}
+    Variant() = default;
+
+    template<typename T>
+    Variant(const T& value)
+    {
+        static_assert(IsOneOf<typename std::decay<T>::type, Types...>::value, "this type does not exists in variant");
+        new (&data) T (value);
+        index = IndexOf<T, Types...>::value;
+    }
+
     template<typename T>
     Variant(T&& value, std::enable_if<std::is_rvalue_reference<T>::value, void>* = nullptr)
     {
-		static_assert(IsOneOf<typename std::decay<T>::type, Types...>::value, "this type does not exists in variant");
-		new (&data) T (std::move(value));
-		index = IndexOf<T, Types...>::value;
+        static_assert(IsOneOf<typename std::decay<T>::type, Types...>::value, "this type does not exists in variant");
+        new (&data) T (std::move(value));
+        index = IndexOf<T, Types...>::value;
     }
+
     Variant(const Variant& other)
     {
         if(&other == this)
@@ -156,26 +158,26 @@ public:
         }
         moveInPlace(std::move(other));
     }
-	~Variant()
-	{
-		destroy();
-	}
-	template<typename T>
-	typename std::enable_if<not std::is_same<Variant, typename std::remove_reference<T>::type>::value,Variant&>::type
+    ~Variant()
+    {
+        destroy();
+    }
+    template<typename T>
+    typename std::enable_if<not std::is_same<Variant, typename std::remove_reference<T>::type>::value,Variant&>::type
     operator=(T&& value)
-	{
-		constexpr auto newIndex = IndexOf<T, Types...>::value;
-		if(newIndex != index)
-		{
-			destroy();
-			new (&data) T (value);
-			index = newIndex;
-		}
-		else
-		{
-			quietAs<T>() = std::forward<T>(value);
-		}
-	}
+    {
+        constexpr auto newIndex = IndexOf<T, Types...>::value;
+        if(newIndex != index)
+        {
+            destroy();
+            new (&data) T (value);
+            index = newIndex;
+        }
+        else
+        {
+            quietAs<T>() = std::forward<T>(value);
+        }
+    }
     Variant& operator=(const Variant& other)
     {
         if(&other == this)
@@ -211,15 +213,15 @@ public:
         }
         return *this;
     }
-	template<typename T>
-	T& as()
-	{
+    template<typename T>
+    T& as()
+    {
         if(not contains<T>())
         {
             throw badVariantAccess{"Trying to access wrong type"};
         }
-		return quietAs<T>();	
-	}
+    return quietAs<T>();	
+    }
     template<typename T>
     const T& as() const
     {
@@ -227,7 +229,7 @@ public:
         {
             throw badVariantAccess{"Trying to access wrong type"};
         }
-		return quietAs<T>();	
+    return quietAs<T>();
     }
     template<typename T>
     constexpr bool contains() const
@@ -235,17 +237,17 @@ public:
         return IndexOf<T, Types...>::value == index;
     }
 private:
-	typename std::aligned_union<0, Types...>::type data;
+    typename std::aligned_union<0, Types...>::type data;
     std::size_t index = npos;
 
-	void destroy()
-	{
-		if(index != npos)
-		{
-			classFuncs.destructors[index](&data);
-			index = npos;
-		}
-	}
+    void destroy()
+    {
+        if(index != npos)
+        {
+            classFuncs.destructors[index](&data);
+            index = npos;
+        }
+    }
     inline void copyInPlace(const Variant& other)
     {
         classFuncs.copiesInPlace[other.index](&data, &other.data);
@@ -257,18 +259,18 @@ private:
         index = other.index;
         other.index = npos;
     }
-	template<typename T>
-	T& quietAs()
-	{
-		return reinterpret_cast<T&>(data);
-	}
-	template<typename T>
-	const T& quietAs() const
-	{
-		return reinterpret_cast<const T&>(data);
-	}
+    template<typename T>
+    T& quietAs()
+    {
+        return reinterpret_cast<T&>(data);
+    }
+    template<typename T>
+    const T& quietAs() const
+    {
+        return reinterpret_cast<const T&>(data);
+    }
 
-	constexpr static ClassFuncs<Types...> classFuncs = {};
+    constexpr static ClassFuncs<Types...> classFuncs = {};
 };
 
 template<typename...Types>
