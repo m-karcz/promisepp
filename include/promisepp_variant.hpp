@@ -216,7 +216,7 @@ public:
     template<typename T>
     T& as()
     {
-        if(not contains<T>())
+        if(not has<T>())
         {
             throw badVariantAccess{"Trying to access wrong type"};
         }
@@ -225,14 +225,14 @@ public:
     template<typename T>
     const T& as() const
     {
-        if(not contains<T>())
+        if(not has<T>())
         {
             throw badVariantAccess{"Trying to access wrong type"};
         }
     return quietAs<T>();
     }
     template<typename T>
-    constexpr bool contains() const
+    constexpr bool has() const
     {
         return IndexOf<T, Types...>::value == index;
     }

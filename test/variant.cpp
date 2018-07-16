@@ -87,8 +87,8 @@ TEST(variant, afterMoveCtorShouldNotContainAnyType)
 
     Variant<int, char> second = std::move(first);
 
-    ASSERT_FALSE_T(first.contains<int>());
-    ASSERT_FALSE_T(first.contains<char>());
+    ASSERT_FALSE_T(first.has<int>());
+    ASSERT_FALSE_T(first.has<char>());
 }
 
 TEST(variant, afterMoveAssignmentShouldNotContainAnyType)
@@ -101,6 +101,6 @@ TEST(variant, afterMoveAssignmentShouldNotContainAnyType)
 
     second = std::move(first);
 
-    ASSERT_FALSE_T(first.contains<int>());
-    ASSERT_FALSE_T(first.contains<bool>());
+    ASSERT_FALSE_T(first.has<int>());
+    ASSERT_FALSE_T(first.has<bool>());
 }
